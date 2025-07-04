@@ -26,7 +26,7 @@
 }
 
 .header-title {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: bold;
   color: #fff;
   margin: 0;
@@ -34,7 +34,7 @@
 }
 
 .header-subtitle {
-  font-size: 16px;
+  font-size: 14px;
   color: rgba(255,255,255,0.7);
   margin: 5px 0 0;
 }
@@ -127,9 +127,9 @@
 
 .swipe-card {
   width: 90vw;
-  max-width: 350px;
-  height: 50vh;
-  min-height: 400px;
+  max-width: 400px;
+  height: 65vh;
+  min-height: 500px;
   position: absolute;
   border-radius: 20px;
   padding: 20px;
@@ -180,10 +180,77 @@
   position: relative;
   z-index: 2;
   height: 100%;
+  padding: 0;
+}
+
+.center-stats {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 0;
+  align-items: center;
+  gap: 10px;
+  z-index: 3;
+}
+
+.stat-item-center {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,0,0,0.6);
+  padding: 6px 12px;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.stat-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.end-date-center {
+  background: rgba(0,0,0,0.6);
+  padding: 6px 12px;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.end-date-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.bet-amount-center {
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.3);
+  padding: 10px 20px;
+  border-radius: 25px;
+  backdrop-filter: blur(10px);
+  position: relative;
+  z-index: 10;
+}
+
+.card-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.9) 0%,
+    rgba(0,0,0,0.7) 50%,
+    transparent 100%
+  );
+  padding: 15px 15px 25px;
+  border-radius: 20px 20px 0 0;
+  text-align: center;
+  z-index: 4;
 }
 
 .card-header {
@@ -208,75 +275,33 @@
 }
 
 .title-text {
-  font-size: 24px;
+  font-size: 16px;
   font-weight: bold;
   color: #fff;
-  margin: 20px 0;
-  line-height: 1.3;
+  margin: 8px 0 6px 0;
+  line-height: 1.1;
 }
 
 .description-text {
-  font-size: 16px;
+  font-size: 11px;
   color: rgba(255,255,255,0.9);
-  line-height: 1.5;
+  line-height: 1.2;
   margin: 0;
 }
 
-.card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-}
 
-.volume-container {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.volume-text {
-  font-size: 14px;
-  color: rgba(255,255,255,0.8);
-}
-
-.bet-amount-container {
-  background: rgba(255,255,255,0.2);
-  padding: 8px 15px;
-  border-radius: 15px;
-  position: relative;
-  z-index: 10;
-}
 
 .bet-amount-text {
   font-size: 16px;
   font-weight: bold;
   color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
-.instructions-container {
+.pass-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   padding: 15px 20px;
-}
-
-.instruction-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
-
-.instruction-text {
-  font-size: 14px;
-  color: rgba(255,255,255,0.7);
-  font-weight: 500;
-}
-
-.pass-instruction {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .pass-button {

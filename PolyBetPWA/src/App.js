@@ -15,7 +15,8 @@ const bettingData = [
     category: "Crypto",
     odds: "65%",
     volume: "$2.3M",
-    gradient: ['#667eea', '#764ba2'],
+    endDate: "Dec 31, 2025",
+    gradient: ['#2d3561', '#3b2665'],
     image: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=400&h=300&fit=crop&crop=center",
   },
   {
@@ -25,7 +26,8 @@ const bettingData = [
     category: "Technology",
     odds: "42%",
     volume: "$1.8M",
-    gradient: ['#f093fb', '#f5576c'],
+    endDate: "Dec 31, 2030",
+    gradient: ['#5d2456', '#662648'],
     image: "https://images.unsplash.com/photo-1555255707-c07966088b7b?w=400&h=300&fit=crop&crop=center",
   },
   {
@@ -35,7 +37,8 @@ const bettingData = [
     category: "Economics",
     odds: "38%",
     volume: "$4.1M",
-    gradient: ['#4facfe', '#00f2fe'],
+    endDate: "Dec 31, 2025",
+    gradient: ['#1e3a5f', '#004d61'],
     image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop&crop=center",
   },
   {
@@ -45,7 +48,8 @@ const bettingData = [
     category: "Stocks",
     odds: "55%",
     volume: "$3.2M",
-    gradient: ['#43e97b', '#38f9d7'],
+    endDate: "Dec 31, 2024",
+    gradient: ['#1a5d3a', '#1a4d4d'],
     image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop&crop=center",
   },
   {
@@ -55,7 +59,8 @@ const bettingData = [
     category: "Space",
     odds: "28%",
     volume: "$1.5M",
-    gradient: ['#fa709a', '#fee140'],
+    endDate: "Dec 31, 2026",
+    gradient: ['#7a2d4a', '#8a4a29'],
     image: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop&crop=center",
   },
 ];
@@ -134,14 +139,14 @@ const SwipeCard = ({ item, onSwipeLeft, onSwipeRight, onPass, betAmount, isTop }
           className="background-overlay"
           style={{
             background: x.to((xVal) => {
-              const intensity = Math.min(Math.abs(xVal) / 80, 0.9);
+              const intensity = Math.min(Math.abs(xVal) / 120, 0.9);
               const baseOverlay = `linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%)`;
               
-              if (xVal < -10) {
-                // Sola kaydırma - Kırmızı efekt + saydamlık
+              if (xVal < -40) {
+                // Sola kaydırma - Kırmızı efekt + saydamlık (daha geç başlar)
                 return `linear-gradient(to bottom, rgba(255,107,107,${intensity * 0.6}) 0%, rgba(220,38,127,${intensity * 0.7}) 50%, rgba(139,69,19,${intensity * 0.9}) 100%), ${baseOverlay}`;
-              } else if (xVal > 10) {
-                // Sağa kaydırma - Yeşil efekt + saydamlık  
+              } else if (xVal > 40) {
+                // Sağa kaydırma - Yeşil efekt + saydamlık (daha geç başlar)
                 return `linear-gradient(to bottom, rgba(67,233,123,${intensity * 0.6}) 0%, rgba(56,249,215,${intensity * 0.7}) 50%, rgba(34,139,34,${intensity * 0.9}) 100%), ${baseOverlay}`;
               }
               return baseOverlay;
@@ -150,20 +155,25 @@ const SwipeCard = ({ item, onSwipeLeft, onSwipeRight, onPass, betAmount, isTop }
         />
         
         <div className="card-info-overlay">
-          <div className="card-header">
-            <span className="category-text">{item.category}</span>
-            <span className="odds-text">{item.odds}</span>
+          <div className="card-top">
+            <div className="card-header">
+              <span className="category-text">{item.category}</span>
+              <span className="odds-text">{item.odds}</span>
+            </div>
+            <h2 className="title-text">{item.title}</h2>
+            <p className="description-text">{item.description}</p>
           </div>
           
-          <h2 className="title-text">{item.title}</h2>
-          <p className="description-text">{item.description}</p>
-          
-          <div className="card-footer">
-            <div className="volume-container">
-              <IoBarChart size={16} color="rgba(255,255,255,0.8)" />
-              <span className="volume-text">{item.volume}</span>
+          {/* Center Stats on Image */}
+          <div className="center-stats">
+            <div className="stat-item-center">
+              <IoBarChart size={18} color="rgba(255,255,255,0.9)" />
+              <span className="stat-text">{item.volume}</span>
             </div>
-            <div className="bet-amount-container">
+            <div className="end-date-center">
+              <span className="end-date-text">{item.endDate}</span>
+            </div>
+            <div className="bet-amount-center">
               <span className="bet-amount-text">${betAmount}</span>
             </div>
           </div>
@@ -272,30 +282,20 @@ export default function App() {
           })}
         </div>
 
-        {/* Swipe Instructions */}
-        <div className="instructions-container">
-          <div className="instruction-item">
-            <IoArrowBack size={24} color="#ff6b6b" />
-            <span className="instruction-text">Swipe left for NO</span>
-          </div>
-          <div className="instruction-item pass-instruction">
-            <button 
-              className="pass-button"
-              onClick={() => {
-                const currentItem = bettingData[currentIndex];
-                if (currentItem) {
-                  handlePassCard(currentItem);
-                }
-              }}
-            >
-              <IoPlaySkipForward size={24} color="#ffd93d" />
-              <span className="pass-text">PAS</span>
-            </button>
-          </div>
-          <div className="instruction-item">
-            <IoArrowForward size={24} color="#4ecdc4" />
-            <span className="instruction-text">Swipe right for YES</span>
-          </div>
+        {/* Pass Button */}
+        <div className="pass-container">
+          <button 
+            className="pass-button"
+            onClick={() => {
+              const currentItem = bettingData[currentIndex];
+              if (currentItem) {
+                handlePassCard(currentItem);
+              }
+            }}
+          >
+            <IoPlaySkipForward size={24} color="#ffd93d" />
+            <span className="pass-text">PAS</span>
+          </button>
         </div>
 
         {/* Stats */}
