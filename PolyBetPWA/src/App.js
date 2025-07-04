@@ -144,20 +144,210 @@ export default function App() {
   const [markets, setMarkets] = useState([]);
   const [loading, setLoading] = useState(true);
 
-// Polymarket API'den veri çekme - CORS Proxy ile - DÜZELTİLMİŞ VERSİYON
+// // Polymarket API'den veri çekme - CORS Proxy ile - DÜZELTİLMİŞ VERSİYON
+// const fetchMarkets = async () => {
+//   console.log('🔄 fetchMarkets function started');
+//   try {
+//     setLoading(true);
+//     console.log('🔄 API çağrısı başlatılıyor...');
+    
+//     // CORS proxy ile API çağrısı
+//     const API_URL = 'https://gamma-api.polymarket.com/markets?limit=10&order=volume&ascending=false&active=true&closed=false&volume_num_min=100000&start_date_max=2025-12-31&end_date_min=2026-01-01';
+//     const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
+    
+//     const response = await fetch(PROXY_URL + API_URL, {
+//       headers: {
+//         'X-Requested-With': 'XMLHttpRequest',
+//       }
+//     });
+    
+//     console.log('📡 Response status:', response.status);
+    
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
+    
+//     const data = await response.json();
+//     console.log('📊 API Response data:', data);
+    
+//     // Polymarket API response formatı kontrol et
+//     const markets = Array.isArray(data) ? data : data.data || [];
+    
+//     if (markets.length === 0) {
+//       console.warn('⚠️ API returned empty array');
+//       setMarkets([]);
+//       return;
+//     }
+    
+//     // Gradient renkleri havuzu
+//     const gradientPool = [
+//       ['#2d3561', '#3b2665'], // Mor-lacivert
+//       ['#5d2456', '#662648'], // Koyu pembe
+//       ['#1e3a5f', '#004d61'], // Koyu mavi
+//       ['#1a5d3a', '#1a4d4d'], // Koyu yeşil
+//       ['#7a2d4a', '#8a4a29'], // Kahverengi-pembe
+//       ['#4a1a4a', '#5d2d5d'], // Koyu mor
+//       ['#2d4a2d', '#3d5d3d'], // Orman yeşili
+//       ['#4a2d1a', '#5d3d2d'], // Kahverengi
+//       ['#1a2d4a', '#2d3d5d'], // Gece mavisi
+//       ['#4a1a2d', '#5d2d3d'], // Bordo
+//     ];
+    
+//     // Kategori belirleme fonksiyonu
+//     const determineCategory = (market) => {
+//       // Question'a göre kategori belirleme
+//       const question = market.question?.toLowerCase() || '';
+      
+//       if (question.includes('recession') || question.includes('economy') || question.includes('gdp')) {
+//         return 'Economics';
+//       } else if (question.includes('bitcoin') || question.includes('crypto') || question.includes('eth')) {
+//         return 'Crypto';
+//       } else if (question.includes('election') || question.includes('trump') || question.includes('biden')) {
+//         return 'Politics';
+//       } else if (question.includes('sports') || question.includes('nfl') || question.includes('nba')) {
+//         return 'Sports';
+//       } else if (question.includes('jesus') || question.includes('christ') || question.includes('gta')) {
+//         return 'Entertainment';
+//       } else if (question.includes('tech') || question.includes('ai') || question.includes('tesla')) {
+//         return 'Technology';
+//       }
+//       return 'Prediction';
+//     };
+    
+//     // API verisini uygulama formatına çevir
+//     const formattedMarkets = markets.slice(0, 10).map((market, index) => {
+//       console.log(`🔄 Processing market ${index + 1}:`, market);
+      
+//       // Kategori belirleme
+//       const category = determineCategory(market);
+      
+//       // ✅ 1. GERÇEK API'DEN GELEN GÖRSEL KULLAN
+//       const imageUrl = market.image || market.icon || `https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop&crop=center`;
+      
+//       // ✅ 2. GERÇEK ODDS HESAPLAMA - outcomePrices dizisinden
+// let odds = '50%';
+
+// // outcomePrices string ise önce JSON.parse et
+// let parsedPrices = market.outcomePrices;
+// if (typeof market.outcomePrices === 'string') {
+//   try {
+//     parsedPrices = JSON.parse(market.outcomePrices);
+//     console.log('🎯 Parsed outcomePrices:', parsedPrices);
+//   } catch (error) {
+//     console.log('🎯 Parse error:', error);
+//     parsedPrices = [];
+//   }
+// }
+
+// if (parsedPrices && parsedPrices.length >= 2) {
+//   const yesPrice = parseFloat(parsedPrices[0]);
+//   console.log('🎯 YesPrice:', yesPrice);
+  
+//   if (!isNaN(yesPrice) && yesPrice > 0) {
+//     odds = `${Math.round(yesPrice * 100)}%`;
+//     console.log('🎯 Final odds:', odds);
+//   }
+// }
+      
+//       // Volume formatting - volumeNum kullan
+//       let volume = '$0';
+//       if (market.volumeNum) {
+//         const volumeNum = market.volumeNum;
+//         if (volumeNum >= 1000000) {
+//           volume = `$${(volumeNum / 1000000).toFixed(1)}M`;
+//         } else if (volumeNum >= 1000) {
+//           volume = `$${(volumeNum / 1000).toFixed(1)}K`;
+//         } else {
+//           volume = `$${volumeNum.toFixed(0)}`;
+//         }
+//       }
+      
+//       // End date formatting
+//       let endDate = 'TBD';
+//       if (market.endDate) {
+//         endDate = new Date(market.endDate).toLocaleDateString('en-US', { 
+//           month: 'short', 
+//           day: 'numeric', 
+//           year: 'numeric' 
+//         });
+//       }
+      
+//       // ✅ 3. DESCRIPTION KISALTMA - maksimum 100 karakter
+//       const truncateDescription = (text, maxLength = 100) => {
+//         if (!text) return 'Make your prediction on this market';
+//         if (text.length <= maxLength) return text;
+//         return text.substring(0, maxLength).trim() + '...';
+//       };
+      
+//       return {
+//         id: market.id || `market-${index}`,
+//         title: market.question || 'Prediction Market',
+//         description: truncateDescription(market.description || market.question),
+//         category: category,
+//         odds: odds, // ✅ Gerçek odds
+//         volume: volume,
+//         endDate: endDate,
+//         gradient: gradientPool[index % gradientPool.length],
+//         image: imageUrl, // ✅ Gerçek API'den gelen görsel
+//       };
+//     });
+    
+//     setMarkets(formattedMarkets);
+//     console.log('✅ Polymarket verileri yüklendi:', formattedMarkets.length, 'market');
+//     console.log('✅ İlk market örneği:', formattedMarkets[0]);
+    
+//   } catch (error) {
+//     console.error('❌ API Error:', error);
+//     console.error('❌ Error details:', error.message);
+    
+//     // Fallback sample data - daha kısa description ile
+//     console.log('🔄 Using fallback sample data...');
+//     const sampleMarkets = [
+//       {
+//         id: "sample-1",
+//         title: "Will Bitcoin reach $100k by end of 2025?",
+//         description: "Bitcoin has been on a bull run. Will it hit the 100k milestone?",
+//         category: "Crypto",
+//         odds: "65%",
+//         volume: "$2.3M",
+//         endDate: "Dec 31, 2025",
+//         gradient: ['#2d3561', '#3b2665'],
+//         image: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=400&h=300&fit=crop&crop=center",
+//       },
+//       {
+//         id: "sample-2", 
+//         title: "Will there be a recession in 2025?",
+//         description: "Economic indicators are mixed. Will the economy enter recession?",
+//         category: "Economics",
+//         odds: "38%",
+//         volume: "$4.1M",
+//         endDate: "Dec 31, 2025",
+//         gradient: ['#1e3a5f', '#004d61'],
+//         image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop&crop=center",
+//       },
+//     ];
+//     setMarkets(sampleMarkets);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+// ✅ Güncellenmiş fetchMarkets fonksiyonu with VERCEL
 const fetchMarkets = async () => {
   console.log('🔄 fetchMarkets function started');
   try {
     setLoading(true);
     console.log('🔄 API çağrısı başlatılıyor...');
     
-    // CORS proxy ile API çağrısı
-    const API_URL = 'https://gamma-api.polymarket.com/markets?limit=10&order=volume&ascending=false&active=true&closed=false&volume_num_min=100000&start_date_max=2025-12-31&end_date_min=2026-01-01';
-    const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
+    // ✅ KALICI ÇÖZÜM: Kendi API endpoint'imizi kullan
+    const API_URL = 'https://polybet-mpt92gsom-purplefox667s-projects.vercel.app/api/polymarket';
     
-    const response = await fetch(PROXY_URL + API_URL, {
+
+    
+    const response = await fetch(API_URL, {
+      method: 'GET',
       headers: {
-        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json',
       }
     });
     
@@ -169,6 +359,12 @@ const fetchMarkets = async () => {
     
     const data = await response.json();
     console.log('📊 API Response data:', data);
+    
+    // Hata durumunda fallback'e geç
+    if (data.fallback || data.error) {
+      console.warn('⚠️ API returned error, using fallback');
+      throw new Error(data.message || 'API error');
+    }
     
     // Polymarket API response formatı kontrol et
     const markets = Array.isArray(data) ? data : data.data || [];
@@ -195,7 +391,6 @@ const fetchMarkets = async () => {
     
     // Kategori belirleme fonksiyonu
     const determineCategory = (market) => {
-      // Question'a göre kategori belirleme
       const question = market.question?.toLowerCase() || '';
       
       if (question.includes('recession') || question.includes('economy') || question.includes('gdp')) {
@@ -221,35 +416,35 @@ const fetchMarkets = async () => {
       // Kategori belirleme
       const category = determineCategory(market);
       
-      // ✅ 1. GERÇEK API'DEN GELEN GÖRSEL KULLAN
+      // ✅ Gerçek API'den gelen görsel
       const imageUrl = market.image || market.icon || `https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop&crop=center`;
       
-      // ✅ 2. GERÇEK ODDS HESAPLAMA - outcomePrices dizisinden
-let odds = '50%';
-
-// outcomePrices string ise önce JSON.parse et
-let parsedPrices = market.outcomePrices;
-if (typeof market.outcomePrices === 'string') {
-  try {
-    parsedPrices = JSON.parse(market.outcomePrices);
-    console.log('🎯 Parsed outcomePrices:', parsedPrices);
-  } catch (error) {
-    console.log('🎯 Parse error:', error);
-    parsedPrices = [];
-  }
-}
-
-if (parsedPrices && parsedPrices.length >= 2) {
-  const yesPrice = parseFloat(parsedPrices[0]);
-  console.log('🎯 YesPrice:', yesPrice);
-  
-  if (!isNaN(yesPrice) && yesPrice > 0) {
-    odds = `${Math.round(yesPrice * 100)}%`;
-    console.log('🎯 Final odds:', odds);
-  }
-}
+      // ✅ DÜZELTİLMİŞ ODDS HESAPLAMA
+      let odds = '50%';
       
-      // Volume formatting - volumeNum kullan
+      // outcomePrices string ise önce JSON.parse et
+      let parsedPrices = market.outcomePrices;
+      if (typeof market.outcomePrices === 'string') {
+        try {
+          parsedPrices = JSON.parse(market.outcomePrices);
+          console.log('🎯 Parsed outcomePrices:', parsedPrices);
+        } catch (error) {
+          console.log('🎯 Parse error:', error);
+          parsedPrices = [];
+        }
+      }
+
+      if (parsedPrices && parsedPrices.length >= 2) {
+        const yesPrice = parseFloat(parsedPrices[0]);
+        console.log('🎯 YesPrice:', yesPrice);
+        
+        if (!isNaN(yesPrice) && yesPrice > 0) {
+          odds = `${Math.round(yesPrice * 100)}%`;
+          console.log('🎯 Final odds:', odds);
+        }
+      }
+      
+      // Volume formatting
       let volume = '$0';
       if (market.volumeNum) {
         const volumeNum = market.volumeNum;
@@ -272,7 +467,7 @@ if (parsedPrices && parsedPrices.length >= 2) {
         });
       }
       
-      // ✅ 3. DESCRIPTION KISALTMA - maksimum 100 karakter
+      // Description kısaltma
       const truncateDescription = (text, maxLength = 100) => {
         if (!text) return 'Make your prediction on this market';
         if (text.length <= maxLength) return text;
@@ -288,7 +483,7 @@ if (parsedPrices && parsedPrices.length >= 2) {
         volume: volume,
         endDate: endDate,
         gradient: gradientPool[index % gradientPool.length],
-        image: imageUrl, // ✅ Gerçek API'den gelen görsel
+        image: imageUrl, // ✅ Gerçek görsel
       };
     });
     
@@ -300,7 +495,7 @@ if (parsedPrices && parsedPrices.length >= 2) {
     console.error('❌ API Error:', error);
     console.error('❌ Error details:', error.message);
     
-    // Fallback sample data - daha kısa description ile
+    // Fallback sample data
     console.log('🔄 Using fallback sample data...');
     const sampleMarkets = [
       {
