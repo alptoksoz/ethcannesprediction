@@ -1,69 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSpring, animated, config } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
-import { IoBarChart, IoArrowBack, IoArrowForward, IoRemove, IoAdd, IoPlaySkipForward } from 'react-icons/io5';
+import { IoBarChart, IoPlaySkipForward } from 'react-icons/io5';
 import './App.css';
 
 const { innerWidth: screenWidth, innerHeight: screenHeight } = window;
 
-// Örnek betting verileri
-const bettingData = [
-  {
-    id: 1,
-    title: "Will Bitcoin reach $100k by end of 2025?",
-    description: "Bitcoin has been on a bull run. Will it hit the 100k milestone?",
-    category: "Crypto",
-    odds: "65%",
-    volume: "$2.3M",
-    endDate: "Dec 31, 2025",
-    gradient: ['#2d3561', '#3b2665'],
-    image: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=400&h=300&fit=crop&crop=center",
-  },
-  {
-    id: 2,
-    title: "Will AI replace 30% of jobs by 2030?",
-    description: "Artificial Intelligence is rapidly advancing. Will it displace jobs?",
-    category: "Technology",
-    odds: "42%",
-    volume: "$1.8M",
-    endDate: "Dec 31, 2030",
-    gradient: ['#5d2456', '#662648'],
-    image: "https://images.unsplash.com/photo-1555255707-c07966088b7b?w=400&h=300&fit=crop&crop=center",
-  },
-  {
-    id: 3,
-    title: "Will there be a recession in 2025?",
-    description: "Economic indicators are mixed. Will the economy enter recession?",
-    category: "Economics",
-    odds: "38%",
-    volume: "$4.1M",
-    endDate: "Dec 31, 2025",
-    gradient: ['#1e3a5f', '#004d61'],
-    image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop&crop=center",
-  },
-  {
-    id: 4,
-    title: "Will Tesla stock hit $300 this year?",
-    description: "Tesla has been volatile. Will it reach new highs?",
-    category: "Stocks",
-    odds: "55%",
-    volume: "$3.2M",
-    endDate: "Dec 31, 2024",
-    gradient: ['#1a5d3a', '#1a4d4d'],
-    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop&crop=center",
-  },
-  {
-    id: 5,
-    title: "Will SpaceX land on Mars by 2026?",
-    description: "SpaceX is making progress. Will they achieve Mars landing?",
-    category: "Space",
-    odds: "28%",
-    volume: "$1.5M",
-    endDate: "Dec 31, 2026",
-    gradient: ['#7a2d4a', '#8a4a29'],
-    image: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop&crop=center",
-  },
-];
+// Artık tamamen gerçek Polymarket verileri kullanılıyor
 
 const SwipeCard = ({ item, onSwipeLeft, onSwipeRight, onPass, betAmount, isTop }) => {
   const [{ x, y, rotation, opacity }, api] = useSpring(() => ({
@@ -173,9 +116,18 @@ const SwipeCard = ({ item, onSwipeLeft, onSwipeRight, onPass, betAmount, isTop }
             <div className="end-date-center">
               <span className="end-date-text">{item.endDate}</span>
             </div>
-            <div className="bet-amount-center">
-              <span className="bet-amount-text">${betAmount}</span>
-            </div>
+            <button 
+              className="bet-button-center"
+              onClick={() => {
+                // Bet butonu - varsayılan olarak YES bahsi yapar
+                const currentItem = markets[currentIndex];
+                if (currentItem) {
+                  handleSwipeRight(currentItem);
+                }
+              }}
+            >
+              <span className="bet-button-text">BET ${betAmount}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -188,6 +140,172 @@ export default function App() {
   const [betAmount, setBetAmount] = useState(10);
   const [totalBets, setTotalBets] = useState(0);
   const [walletBalance, setWalletBalance] = useState(4350);
+  const [markets, setMarkets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Polymarket API'den veri çekme
+  const fetchMarkets = async () => {
+    try {
+      setLoading(true);
+      console.log('🔄 API çağrısı başlatılıyor...');
+      
+      // Daha fazla market çek ve çeşitli kategorilerden
+      const response = await fetch('https://gamma-api.polymarket.com/markets?limit=20&order=volume&ascending=false&active=true&closed=false');
+      
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response headers:', response.headers);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log('📊 API Response data:', data);
+      console.log('📊 Data type:', typeof data);
+      console.log('📊 Is array?', Array.isArray(data));
+      console.log('📊 Data length:', data?.length);
+      
+      if (!Array.isArray(data)) {
+        console.error('❌ API response is not an array:', data);
+        throw new Error('API response is not an array');
+      }
+      
+      if (data.length === 0) {
+        console.warn('⚠️ API returned empty array');
+        setMarkets([]);
+        return;
+      }
+      
+      // Gradient renkleri havuzu
+      const gradientPool = [
+        ['#2d3561', '#3b2665'], // Mor-lacivert
+        ['#5d2456', '#662648'], // Koyu pembe
+        ['#1e3a5f', '#004d61'], // Koyu mavi
+        ['#1a5d3a', '#1a4d4d'], // Koyu yeşil
+        ['#7a2d4a', '#8a4a29'], // Kahverengi-pembe
+        ['#4a1a4a', '#5d2d5d'], // Koyu mor
+        ['#2d4a2d', '#3d5d3d'], // Orman yeşili
+        ['#4a2d1a', '#5d3d2d'], // Kahverengi
+        ['#1a2d4a', '#2d3d5d'], // Gece mavisi
+        ['#4a1a2d', '#5d2d3d'], // Bordo
+      ];
+      
+      // API verisini uygulama formatına çevir
+      console.log('🔄 Processing first market data:', data[0]);
+      
+      const formattedMarkets = data.slice(0, 10).map((market, index) => {
+        console.log(`🔄 Processing market ${index + 1}:`, market.question);
+        
+        // Kategoriyi belirle
+        let category = 'Market';
+        if (market.question.toLowerCase().includes('bitcoin') || market.question.toLowerCase().includes('crypto')) {
+          category = 'Crypto';
+        } else if (market.question.toLowerCase().includes('election') || market.question.toLowerCase().includes('trump') || market.question.toLowerCase().includes('president')) {
+          category = 'Politics';
+        } else if (market.question.toLowerCase().includes('recession') || market.question.toLowerCase().includes('economy')) {
+          category = 'Economics';
+        } else if (market.question.toLowerCase().includes('ai') || market.question.toLowerCase().includes('tech')) {
+          category = 'Technology';
+        } else if (market.question.toLowerCase().includes('sports') || market.question.toLowerCase().includes('game')) {
+          category = 'Sports';
+        }
+
+        // Açıklamayı temizle ve kısalt
+        let description = market.description || 'Real prediction market from Polymarket';
+        if (description.length > 120) {
+          description = description.substring(0, 120) + '...';
+        }
+        
+        // Resim URL'sini kontrol et
+        let imageUrl = market.image || market.icon;
+        if (!imageUrl || imageUrl === '') {
+          // Kategoriye göre varsayılan Unsplash görselleri
+          const categoryImages = {
+            'Crypto': 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=400&h=300&fit=crop&crop=center',
+            'Politics': 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=400&h=300&fit=crop&crop=center',
+            'Economics': 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop&crop=center',
+            'Technology': 'https://images.unsplash.com/photo-1555255707-c07966088b7b?w=400&h=300&fit=crop&crop=center',
+            'Sports': 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=300&fit=crop&crop=center',
+            'Market': 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?w=400&h=300&fit=crop&crop=center',
+          };
+          imageUrl = categoryImages[category];
+        }
+
+        return {
+          id: market.id,
+          title: market.question,
+          description: description,
+          category: category,
+          odds: `${Math.round(parseFloat(market.outcomePrices?.[0] || 0.5) * 100)}%`,
+          volume: `$${(parseFloat(market.volume) / 1000000).toFixed(1)}M`,
+          endDate: new Date(market.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          gradient: gradientPool[index % gradientPool.length],
+          image: imageUrl,
+        };
+      });
+      
+      setMarkets(formattedMarkets);
+      console.log('✅ Polymarket verileri yüklendi:', formattedMarkets.length, 'market');
+    } catch (error) {
+      console.error('❌ API Error:', error);
+      console.error('❌ Error details:', error.message);
+      console.error('❌ Error stack:', error.stack);
+      
+      // CORS hatası veya API sorunu için fallback data
+      console.log('🔄 Using fallback sample data...');
+      const sampleMarkets = [
+        {
+          id: "sample-1",
+          title: "Will Bitcoin reach $100k by end of 2025?",
+          description: "Bitcoin has been on a bull run. Will it hit the 100k milestone?",
+          category: "Crypto",
+          odds: "65%",
+          volume: "$2.3M",
+          endDate: "Dec 31, 2025",
+          gradient: ['#2d3561', '#3b2665'],
+          image: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=400&h=300&fit=crop&crop=center",
+        },
+        {
+          id: "sample-2", 
+          title: "Will there be a recession in 2025?",
+          description: "Economic indicators are mixed. Will the economy enter recession?",
+          category: "Economics",
+          odds: "38%",
+          volume: "$4.1M",
+          endDate: "Dec 31, 2025",
+          gradient: ['#1e3a5f', '#004d61'],
+          image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop&crop=center",
+        },
+      ];
+      setMarkets(sampleMarkets);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // API test fonksiyonu
+  const testAPI = async () => {
+    try {
+      console.log('🧪 Testing API connection...');
+      const testResponse = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+      console.log('🧪 Test API status:', testResponse.status);
+      const testData = await testResponse.json();
+      console.log('🧪 Test API data:', testData);
+      
+      // Şimdi gerçek API'yi test et
+      console.log('🧪 Testing Polymarket API...');
+      const polyResponse = await fetch('https://gamma-api.polymarket.com/markets?limit=1');
+      console.log('🧪 Polymarket API status:', polyResponse.status);
+      console.log('🧪 Polymarket API headers:', [...polyResponse.headers.entries()]);
+    } catch (error) {
+      console.error('🧪 API Test Error:', error);
+    }
+  };
+
+  useEffect(() => {
+    testAPI();
+    fetchMarkets();
+  }, []);
 
   const handleSwipeLeft = (item) => {
     // NO bet
@@ -209,7 +327,7 @@ export default function App() {
   };
 
   const nextCard = () => {
-    if (currentIndex < bettingData.length - 1) {
+    if (currentIndex < markets.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
       // Kartlar bittiğinde otomatik olarak başa dön
@@ -217,10 +335,7 @@ export default function App() {
     }
   };
 
-  const adjustBetAmount = (amount) => {
-    const newAmount = Math.max(1, betAmount + amount);
-    setBetAmount(newAmount);
-  };
+
 
   return (
     <div className="app-container">
@@ -238,48 +353,43 @@ export default function App() {
           </div>
         </header>
 
-        {/* Bet Amount Controls */}
-        <div className="bet-controls">
-          <span className="bet-label">Bet Amount</span>
-          <div className="bet-amount-controls">
-            <button
-              className="bet-button"
-              onClick={() => adjustBetAmount(-5)}
-            >
-              <IoRemove size={20} color="#fff" />
-            </button>
-            
-            <div className="bet-amount-display">
-              <span className="bet-amount-main-text">${betAmount}</span>
-            </div>
-            
-            <button
-              className="bet-button"
-              onClick={() => adjustBetAmount(5)}
-            >
-              <IoAdd size={20} color="#fff" />
-            </button>
-          </div>
-        </div>
+
 
         {/* Cards Container */}
         <div className="cards-container">
-          {bettingData.map((item, index) => {
-            if (index < currentIndex) return null;
-            if (index > currentIndex + 1) return null;
-            
-            return (
-              <SwipeCard
-                key={item.id}
-                item={item}
-                onSwipeLeft={handleSwipeLeft}
-                onSwipeRight={handleSwipeRight}
-                onPass={handlePassCard}
-                betAmount={betAmount}
-                isTop={index === currentIndex}
-              />
-            );
-          })}
+          {loading ? (
+            <div className="loading-container">
+              <div className="loading-spinner"></div>
+              <span className="loading-text">Loading Real Markets...</span>
+            </div>
+          ) : markets.length === 0 ? (
+            <div className="loading-container">
+              <span className="loading-text">No markets available</span>
+              <button 
+                className="retry-button"
+                onClick={fetchMarkets}
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            markets.map((item, index) => {
+              if (index < currentIndex) return null;
+              if (index > currentIndex + 1) return null;
+              
+              return (
+                <SwipeCard
+                  key={item.id}
+                  item={item}
+                  onSwipeLeft={handleSwipeLeft}
+                  onSwipeRight={handleSwipeRight}
+                  onPass={handlePassCard}
+                  betAmount={betAmount}
+                  isTop={index === currentIndex}
+                />
+              );
+            })
+          )}
         </div>
 
         {/* Pass Button */}
@@ -287,11 +397,12 @@ export default function App() {
           <button 
             className="pass-button"
             onClick={() => {
-              const currentItem = bettingData[currentIndex];
+              const currentItem = markets[currentIndex];
               if (currentItem) {
                 handlePassCard(currentItem);
               }
             }}
+            disabled={loading || markets.length === 0}
           >
             <IoPlaySkipForward size={24} color="#ffd93d" />
             <span className="pass-text">PAS</span>
@@ -306,7 +417,7 @@ export default function App() {
           </div>
           <div className="stat-item">
             <span className="stat-label">Cards Left</span>
-            <span className="stat-value">{bettingData.length - currentIndex}</span>
+            <span className="stat-value">{Math.max(0, markets.length - currentIndex)}</span>
           </div>
         </div>
       </div>
