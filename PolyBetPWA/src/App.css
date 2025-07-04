@@ -110,6 +110,10 @@
   user-select: none;
 }
 
+.swipe-overlay {
+  z-index: 1;
+}
+
 .swipe-card:active {
   cursor: grabbing;
 }
@@ -122,8 +126,52 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   color: white;
+  position: relative;
+  z-index: 2;
+}
+
+.card-image-container {
+  position: relative;
+  height: 45%;
+  width: 100%;
+  margin: -20px -20px 15px -20px;
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 20px 20px 0 0;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 50%,
+    rgba(0,0,0,0.7) 100%
+  );
+  pointer-events: none;
+}
+
+.card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0 5px;
 }
 
 .card-header {
@@ -184,6 +232,8 @@
   background: rgba(255,255,255,0.2);
   padding: 8px 15px;
   border-radius: 15px;
+  position: relative;
+  z-index: 10;
 }
 
 .bet-amount-text {
@@ -200,13 +250,51 @@
 
 .instruction-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
 }
 
 .instruction-text {
   font-size: 14px;
   color: rgba(255,255,255,0.7);
+  font-weight: 500;
+}
+
+.pass-instruction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pass-button {
+  background: rgba(255, 217, 61, 0.2);
+  border: 2px solid rgba(255, 217, 61, 0.4);
+  border-radius: 25px;
+  padding: 15px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pass-button:hover {
+  background: rgba(255, 217, 61, 0.3);
+  border-color: rgba(255, 217, 61, 0.6);
+  transform: scale(1.05);
+}
+
+.pass-button:active {
+  transform: scale(0.95);
+}
+
+.pass-text {
+  font-size: 12px;
+  color: #ffd93d;
+  font-weight: bold;
+  margin-top: 2px;
 }
 
 .stats-container {

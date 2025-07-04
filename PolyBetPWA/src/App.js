@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useSpring, animated, config } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
-import { IoBarChart, IoArrowBack, IoArrowForward, IoRemove, IoAdd } from 'react-icons/io5';
+import { IoBarChart, IoArrowBack, IoArrowForward, IoRemove, IoAdd, IoPlaySkipForward } from 'react-icons/io5';
 import './App.css';
 
 const { innerWidth: screenWidth, innerHeight: screenHeight } = window;
@@ -16,6 +16,7 @@ const bettingData = [
     odds: "65%",
     volume: "$2.3M",
     gradient: ['#667eea', '#764ba2'],
+    image: "https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=400&h=300&fit=crop&crop=center",
   },
   {
     id: 2,
@@ -25,6 +26,7 @@ const bettingData = [
     odds: "42%",
     volume: "$1.8M",
     gradient: ['#f093fb', '#f5576c'],
+    image: "https://images.unsplash.com/photo-1555255707-c07966088b7b?w=400&h=300&fit=crop&crop=center",
   },
   {
     id: 3,
@@ -34,6 +36,7 @@ const bettingData = [
     odds: "38%",
     volume: "$4.1M",
     gradient: ['#4facfe', '#00f2fe'],
+    image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=300&fit=crop&crop=center",
   },
   {
     id: 4,
@@ -43,6 +46,7 @@ const bettingData = [
     odds: "55%",
     volume: "$3.2M",
     gradient: ['#43e97b', '#38f9d7'],
+    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop&crop=center",
   },
   {
     id: 5,
@@ -52,10 +56,11 @@ const bettingData = [
     odds: "28%",
     volume: "$1.5M",
     gradient: ['#fa709a', '#fee140'],
+    image: "https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=400&h=300&fit=crop&crop=center",
   },
 ];
 
-const SwipeCard = ({ item, onSwipeLeft, onSwipeRight, betAmount, isTop }) => {
+const SwipeCard = ({ item, onSwipeLeft, onSwipeRight, onPass, betAmount, isTop }) => {
   const [{ x, y, rotation, opacity }, api] = useSpring(() => ({
     x: 0,
     y: 0,
@@ -114,22 +119,59 @@ const SwipeCard = ({ item, onSwipeLeft, onSwipeRight, betAmount, isTop }) => {
         zIndex: isTop ? 2 : 1,
       }}
     >
+      {/* Swipe Direction Overlay */}
+      <animated.div
+        className="swipe-overlay"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          borderRadius: '20px',
+          pointerEvents: 'none',
+          background: x.to((xVal) => {
+            const intensity = Math.min(Math.abs(xVal) / 100, 0.6);
+            if (xVal < -10) {
+              // Sola kaydırma - Kırmızı gradient (NO)
+              return `linear-gradient(135deg, rgba(255, 107, 107, ${intensity}), rgba(220, 38, 127, ${intensity}))`;
+            } else if (xVal > 10) {
+              // Sağa kaydırma - Yeşil gradient (YES)
+              return `linear-gradient(135deg, rgba(67, 233, 123, ${intensity}), rgba(56, 249, 215, ${intensity}))`;
+            }
+            return 'transparent';
+          }),
+        }}
+      />
+      
       <div className="card-content">
-        <div className="card-header">
-          <span className="category-text">{item.category}</span>
-          <span className="odds-text">{item.odds}</span>
+        {/* Card Image */}
+        <div className="card-image-container">
+          <img 
+            src={item.image} 
+            alt={item.title}
+            className="card-image"
+          />
+          <div className="image-overlay" />
         </div>
         
-        <h2 className="title-text">{item.title}</h2>
-        <p className="description-text">{item.description}</p>
-        
-        <div className="card-footer">
-          <div className="volume-container">
-            <IoBarChart size={16} color="rgba(255,255,255,0.8)" />
-            <span className="volume-text">{item.volume}</span>
+        <div className="card-info">
+          <div className="card-header">
+            <span className="category-text">{item.category}</span>
+            <span className="odds-text">{item.odds}</span>
           </div>
-          <div className="bet-amount-container">
-            <span className="bet-amount-text">${betAmount}</span>
+          
+          <h2 className="title-text">{item.title}</h2>
+          <p className="description-text">{item.description}</p>
+          
+          <div className="card-footer">
+            <div className="volume-container">
+              <IoBarChart size={16} color="rgba(255,255,255,0.8)" />
+              <span className="volume-text">{item.volume}</span>
+            </div>
+            <div className="bet-amount-container">
+              <span className="bet-amount-text">${betAmount}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -144,15 +186,18 @@ export default function App() {
 
   const handleSwipeLeft = (item) => {
     // NO bet
-    alert(`Bet Placed! 🔴\nYou bet $${betAmount} on NO for:\n"${item.title}"`);
     setTotalBets(totalBets + betAmount);
     nextCard();
   };
 
   const handleSwipeRight = (item) => {
     // YES bet
-    alert(`Bet Placed! 🟢\nYou bet $${betAmount} on YES for:\n"${item.title}"`);
     setTotalBets(totalBets + betAmount);
+    nextCard();
+  };
+
+  const handlePassCard = (item) => {
+    // Pass without betting
     nextCard();
   };
 
@@ -160,9 +205,8 @@ export default function App() {
     if (currentIndex < bettingData.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      if (window.confirm("All Done! 🎉\nNo more betting opportunities available.\n\nRestart?")) {
-        setCurrentIndex(0);
-      }
+      // Kartlar bittiğinde otomatik olarak başa dön
+      setCurrentIndex(0);
     }
   };
 
@@ -216,6 +260,7 @@ export default function App() {
                 item={item}
                 onSwipeLeft={handleSwipeLeft}
                 onSwipeRight={handleSwipeRight}
+                onPass={handlePassCard}
                 betAmount={betAmount}
                 isTop={index === currentIndex}
               />
@@ -228,6 +273,20 @@ export default function App() {
           <div className="instruction-item">
             <IoArrowBack size={24} color="#ff6b6b" />
             <span className="instruction-text">Swipe left for NO</span>
+          </div>
+          <div className="instruction-item pass-instruction">
+            <button 
+              className="pass-button"
+              onClick={() => {
+                const currentItem = bettingData[currentIndex];
+                if (currentItem) {
+                  handlePassCard(currentItem);
+                }
+              }}
+            >
+              <IoPlaySkipForward size={24} color="#ffd93d" />
+              <span className="pass-text">PAS</span>
+            </button>
           </div>
           <div className="instruction-item">
             <IoArrowForward size={24} color="#4ecdc4" />
