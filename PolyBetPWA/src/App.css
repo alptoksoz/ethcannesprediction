@@ -62,8 +62,6 @@
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
-
-
 .cards-container {
   flex: 1;
   display: flex;
@@ -131,8 +129,6 @@
   user-select: none;
 }
 
-
-
 .swipe-card:active {
   cursor: grabbing;
 }
@@ -141,6 +137,7 @@
   z-index: 2;
 }
 
+/* ✅ Card Content - Düzeltilmiş Layout */
 .card-content {
   height: 100%;
   display: flex;
@@ -153,6 +150,7 @@
   overflow: hidden;
 }
 
+/* ✅ Background Overlay - Swipe efektleri için */
 .background-overlay {
   position: absolute;
   top: 0;
@@ -161,20 +159,95 @@
   bottom: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.3) 0%,
-    rgba(0,0,0,0.4) 50%,
-    rgba(0,0,0,0.8) 100%
+    rgba(0,0,0,0.2) 0%,
+    rgba(0,0,0,0.3) 40%,
+    rgba(0,0,0,0.7) 100%
   );
   z-index: 1;
 }
 
+/* ✅ Card Info Overlay - Ana content container */
 .card-info-overlay {
   position: relative;
   z-index: 2;
   height: 100%;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
+/* ✅ Card Top - Header ve Description alanı */
+.card-top {
+  padding: 20px;
+  flex-shrink: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.9) 0%,
+    rgba(0,0,0,0.7) 70%,
+    transparent 100%
+  );
+  border-radius: 20px 20px 0 0;
+  z-index: 4;
+  position: relative;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.category-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.9);
+  font-weight: 600;
+  background: rgba(255,255,255,0.25);
+  padding: 6px 12px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+}
+
+.odds-text {
+  font-size: 18px;
+  color: #fff;
+  font-weight: bold;
+  background: rgba(0,0,0,0.4);
+  padding: 4px 12px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.title-text {
+  font-size: 22px;
+  font-weight: bold;
+  color: #fff;
+  margin: 0 0 12px 0;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.7);
+}
+
+/* ✅ Description - Kısıtlanmış alan */
+.description-text {
+  font-size: 15px;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.4;
+  margin: 0;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.2);
+  padding: 8px 12px;
+  border-radius: 8px;
+  backdrop-filter: blur(5px);
+}
+
+/* ✅ Center Stats - Orta kısım (görsel üzerinde) */
 .center-stats {
   position: absolute;
   top: 50%;
@@ -183,18 +256,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   z-index: 3;
 }
 
 .stat-item-center {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(0,0,0,0.6);
-  padding: 6px 12px;
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
+  gap: 8px;
+  background: rgba(0,0,0,0.7);
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
 .stat-text {
@@ -205,103 +279,52 @@
 }
 
 .end-date-center {
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.7);
   padding: 8px 16px;
   border-radius: 16px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
 .end-date-text {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: rgba(255,255,255,0.9);
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 .bet-button-center {
-  background: rgba(67, 233, 123, 0.3);
-  border: 2px solid rgba(67, 233, 123, 0.6);
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+  border: none;
   padding: 12px 24px;
   border-radius: 25px;
-  backdrop-filter: blur(10px);
-  position: relative;
-  z-index: 10;
+  color: #000;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(67, 233, 123, 0.4);
+  position: relative;
+  z-index: 10;
 }
 
 .bet-button-center:hover {
-  background: rgba(67, 233, 123, 0.4);
-  border-color: rgba(67, 233, 123, 0.8);
   transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(67, 233, 123, 0.6);
 }
 
 .bet-button-center:active {
   transform: scale(0.95);
 }
 
-.card-top {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.9) 0%,
-    rgba(0,0,0,0.7) 50%,
-    transparent 100%
-  );
-  padding: 15px 15px 25px;
-  border-radius: 20px 20px 0 0;
-  text-align: center;
-  z-index: 4;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.category-text {
-  font-size: 16px;
-  color: rgba(255,255,255,0.8);
-  font-weight: 600;
-  background: rgba(255,255,255,0.2);
-  padding: 6px 12px;
-  border-radius: 15px;
-}
-
-.odds-text {
-  font-size: 20px;
-  color: #fff;
-  font-weight: bold;
-}
-
-.title-text {
-  font-size: 20px;
-  font-weight: bold;
-  color: #fff;
-  margin: 8px 0 6px 0;
-  line-height: 1.1;
-}
-
-.description-text {
-  font-size: 14px;
-  color: rgba(255,255,255,0.9);
-  line-height: 1.2;
-  margin: 0;
-}
-
-
-
 .bet-button-text {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
-  color: #fff;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  color: #000;
+  text-shadow: none;
 }
 
+/* Pass Button */
 .pass-container {
   display: flex;
   justify-content: center;
@@ -350,6 +373,7 @@
   margin-top: 2px;
 }
 
+/* Stats Container */
 .stats-container {
   display: flex;
   justify-content: space-around;
@@ -374,29 +398,60 @@
   margin-top: 5px;
 }
 
-/* Mobile responsiveness */
+/* ✅ Responsive düzeltmeler */
 @media (max-width: 480px) {
   .header-title {
-    font-size: 28px;
+    font-size: 24px;
   }
   
   .swipe-card {
     width: 95vw;
-    height: 45vh;
+    height: 60vh;
     padding: 15px;
+    min-height: 450px;
   }
   
   .title-text {
     font-size: 20px;
   }
   
-  .bet-amount-controls {
+  .description-text {
+    font-size: 14px;
+    max-height: 50px;
+    -webkit-line-clamp: 2;
+  }
+  
+  .card-top {
+    padding: 16px;
+  }
+  
+  .center-stats {
     gap: 10px;
   }
   
-  .bet-button {
-    width: 45px;
-    height: 45px;
+  .stat-item-center {
+    padding: 6px 12px;
+  }
+  
+  .bet-button-center {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 400px) {
+  .title-text {
+    font-size: 18px;
+  }
+  
+  .description-text {
+    font-size: 13px;
+    max-height: 45px;
+    -webkit-line-clamp: 2;
+  }
+  
+  .card-top {
+    padding: 14px;
   }
 }
 
@@ -416,4 +471,4 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-} 
+}
