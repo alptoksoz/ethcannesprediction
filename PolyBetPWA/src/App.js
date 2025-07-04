@@ -119,43 +119,37 @@ const SwipeCard = ({ item, onSwipeLeft, onSwipeRight, onPass, betAmount, isTop }
         zIndex: isTop ? 2 : 1,
       }}
     >
-      {/* Swipe Direction Overlay */}
-      <animated.div
-        className="swipe-overlay"
+
+      <div 
+        className="card-content"
         style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          borderRadius: '20px',
-          pointerEvents: 'none',
-          background: x.to((xVal) => {
-            const intensity = Math.min(Math.abs(xVal) / 100, 0.6);
-            if (xVal < -10) {
-              // Sola kaydırma - Kırmızı gradient (NO)
-              return `linear-gradient(135deg, rgba(255, 107, 107, ${intensity}), rgba(220, 38, 127, ${intensity}))`;
-            } else if (xVal > 10) {
-              // Sağa kaydırma - Yeşil gradient (YES)
-              return `linear-gradient(135deg, rgba(67, 233, 123, ${intensity}), rgba(56, 249, 215, ${intensity}))`;
-            }
-            return 'transparent';
-          }),
+          backgroundImage: `url(${item.image})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
         }}
-      />
-      
-      <div className="card-content">
-        {/* Card Image */}
-        <div className="card-image-container">
-          <img 
-            src={item.image} 
-            alt={item.title}
-            className="card-image"
-          />
-          <div className="image-overlay" />
-        </div>
+      >
+        {/* Dynamic Background Overlay */}
+        <animated.div
+          className="background-overlay"
+          style={{
+            background: x.to((xVal) => {
+              const intensity = Math.min(Math.abs(xVal) / 80, 0.9);
+              const baseOverlay = `linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%)`;
+              
+              if (xVal < -10) {
+                // Sola kaydırma - Kırmızı efekt + saydamlık
+                return `linear-gradient(to bottom, rgba(255,107,107,${intensity * 0.6}) 0%, rgba(220,38,127,${intensity * 0.7}) 50%, rgba(139,69,19,${intensity * 0.9}) 100%), ${baseOverlay}`;
+              } else if (xVal > 10) {
+                // Sağa kaydırma - Yeşil efekt + saydamlık  
+                return `linear-gradient(to bottom, rgba(67,233,123,${intensity * 0.6}) 0%, rgba(56,249,215,${intensity * 0.7}) 50%, rgba(34,139,34,${intensity * 0.9}) 100%), ${baseOverlay}`;
+              }
+              return baseOverlay;
+            }),
+          }}
+        />
         
-        <div className="card-info">
+        <div className="card-info-overlay">
           <div className="card-header">
             <span className="category-text">{item.category}</span>
             <span className="odds-text">{item.odds}</span>
@@ -183,16 +177,19 @@ export default function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [betAmount, setBetAmount] = useState(10);
   const [totalBets, setTotalBets] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(4350);
 
   const handleSwipeLeft = (item) => {
     // NO bet
     setTotalBets(totalBets + betAmount);
+    setWalletBalance(walletBalance - betAmount);
     nextCard();
   };
 
   const handleSwipeRight = (item) => {
     // YES bet
     setTotalBets(totalBets + betAmount);
+    setWalletBalance(walletBalance - betAmount);
     nextCard();
   };
 
@@ -220,8 +217,15 @@ export default function App() {
       <div className="app-background">
         {/* Header */}
         <header className="app-header">
-          <h1 className="header-title">PolyBet</h1>
-          <p className="header-subtitle">Swipe to predict the future</p>
+          <div className="header-left">
+            <h1 className="header-title">PolyMobile</h1>
+            <p className="header-subtitle">Swipe to predict the future</p>
+          </div>
+          <div className="header-right">
+            <div className="wallet-balance">
+              <span className="balance-amount">{walletBalance.toLocaleString()} USDC</span>
+            </div>
+          </div>
         </header>
 
         {/* Bet Amount Controls */}
