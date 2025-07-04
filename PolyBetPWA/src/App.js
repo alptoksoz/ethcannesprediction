@@ -9,6 +9,7 @@ const { innerWidth: screenWidth, innerHeight: screenHeight } = window;
 // Artık tamamen gerçek Polymarket verileri kullanılıyor
 
 const SwipeCard = ({ item, onSwipeLeft, onSwipeRight, onPass, betAmount, isTop }) => {
+  const [showFullDescription, setShowFullDescription] = useState(false);
   const [{ x, y, rotation, opacity }, api] = useSpring(() => ({
     x: 0,
     y: 0,
@@ -72,7 +73,7 @@ const SwipeCard = ({ item, onSwipeLeft, onSwipeRight, onPass, betAmount, isTop }
         className="card-content"
         style={{
           backgroundImage: `url(${item.image})`,
-          backgroundSize: 'cover',
+          backgroundSize: 'contain',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
         }}
@@ -104,20 +105,32 @@ const SwipeCard = ({ item, onSwipeLeft, onSwipeRight, onPass, betAmount, isTop }
               <span className="odds-text">{item.odds}</span>
             </div>
             <h2 className="title-text">{item.title}</h2>
-            <p className="description-text">{item.description}</p>
+            <div className="description-container">
+              <p className={`description-text ${showFullDescription ? 'description-full' : ''}`}>
+                {showFullDescription ? item.description : `${item.description?.substring(0, 50) || ''}...`}
+              </p>
+              {item.description && item.description.length > 50 && (
+                <button 
+                  className="see-description-btn" 
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                >
+                  {showFullDescription ? 'More Less' : 'See Description'}
+                </button>
+              )}
+            </div>
           </div>
           
-          {/* Center Stats on Image */}
-          <div className="center-stats">
-            <div className="stat-item-center">
+          {/* Bottom Stats - Moved to bottom */}
+          <div className="bottom-stats">
+            <div className="stat-item-bottom">
               <IoBarChart size={18} color="rgba(255,255,255,0.9)" />
               <span className="stat-text">{item.volume}</span>
             </div>
-            <div className="end-date-center">
+            <div className="end-date-bottom">
               <span className="end-date-text">{item.endDate}</span>
             </div>
             <button 
-              className="bet-button-center"
+              className="bet-button-bottom"
               onClick={() => {
                 // Bet butonu - varsayılan olarak YES bahsi yapar
                 const currentItem = markets[currentIndex];
